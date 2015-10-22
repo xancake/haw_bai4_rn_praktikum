@@ -1,0 +1,5 @@
+mail.source.address	= 
+mail.user.name		= 
+mail.user.password	= 
+mail.smtp.server	= mailgate.informatik.haw-hamburg.de
+mail.smtp.port		= 25

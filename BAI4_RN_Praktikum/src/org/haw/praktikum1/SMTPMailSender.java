@@ -13,8 +13,8 @@ import java.util.logging.Logger;
 
 import javax.net.ssl.SSLSocketFactory;
 
-public class MailSender implements AutoCloseable {
-	private static final Logger LOGGER = Logger.getLogger(MailSender.class.getName());
+public class SMTPMailSender implements AutoCloseable {
+	private static final Logger LOGGER = Logger.getLogger(SMTPMailSender.class.getName());
 	
 	private static final int PORT_SSL = 465;
 	
@@ -27,7 +27,7 @@ public class MailSender implements AutoCloseable {
 	private BufferedReader _in;
 	private PrintWriter _out;
 	
-	public MailSender(String smtpServer, int smtpPort, String username, String password) throws UnknownHostException, IOException {
+	public SMTPMailSender(String smtpServer, int smtpPort, String username, String password) throws UnknownHostException, IOException {
 		_username = username;
 		_password = password;
 		_socket = createSocket(smtpServer, smtpPort);
@@ -116,7 +116,7 @@ public class MailSender implements AutoCloseable {
 	
 	private String receive() throws IOException {
 		String string = _in.readLine();
-		LOGGER.info("[RECEIVE] " + string);
+		LOGGER.info("[RECV] " + string);
 		return string;
 	}
 	

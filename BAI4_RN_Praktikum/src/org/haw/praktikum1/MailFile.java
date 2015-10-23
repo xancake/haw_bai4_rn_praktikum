@@ -2,7 +2,10 @@ package org.haw.praktikum1;
 
 import java.util.Properties;
 import java.util.logging.FileHandler;
+import java.util.logging.Handler;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 public class MailFile {
 	private static final String PROPERTIES_DEFAULT = "praktikum1/mail.properties";
@@ -38,7 +41,10 @@ public class MailFile {
 	}
 	
 	public static void main(String[] args) throws Exception {
-		Logger.getGlobal().addHandler(new FileHandler("mail.log"));
+		Handler loggingHandler = new FileHandler("mail.log");
+		loggingHandler.setFormatter(new SimpleFormatter());
+		loggingHandler.setLevel(Level.ALL);
+		Logger.getGlobal().addHandler(loggingHandler);
 		
 		if(args.length > 0) {
 			String recipient = args[0];
@@ -58,7 +64,7 @@ public class MailFile {
 			
 			String sender = properties.getProperty(PROPERTY_SOURCE_ADDRESS);
 			
-			try(MailSender mailer = new MailSender(smtpServer, smtpPort, username, password)) {
+			try(SMTPMailSender mailer = new SMTPMailSender(smtpServer, smtpPort, username, password)) {
 				mailer.sendMail(sender, recipient, BETREFF, NACHRICHT, filePaths);
 			}
 		} else {

@@ -1,13 +1,10 @@
 package org.haw.praktikum1;
 
 import java.util.Properties;
-import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
 import java.util.logging.Logger;
 
 public class MailFile {
-	private static final Logger LOGGER = Logger.getLogger(MailFile.class.getName());
-	
 	private static final String PROPERTIES_DEFAULT = "praktikum1/mail.properties";
 	
 	private static final String PROPERTY_SOURCE_ADDRESS = "mail.source.address";
@@ -16,12 +13,13 @@ public class MailFile {
 	private static final String PROPERTY_SMTP_SERVER    = "mail.smtp.server";
 	private static final String PROPERTY_SMTP_PORT      = "mail.smtp.port";
 	
+	private static final String BETREFF = "Quatschnasen UNITE!";
 	private static final String NACHRICHT =
 			"Hallo du Quatschnase!\n" +
 			"\n" +
 			"Gründe, warum du eine Quatschnase bist:\n" +
 			"- Grüner Hut\n" +
-			"- große Füße\n" + 
+			"- Große Füße\n" + 
 			"- Lautes Schnarchen\n" +
 			"\n" +
 			"Mit freundlichen Grüßen,\n" +
@@ -60,11 +58,9 @@ public class MailFile {
 			
 			String sender = properties.getProperty(PROPERTY_SOURCE_ADDRESS);
 			
-			LOGGER.info("Beginne Mailsenden");
 			try(MailSender mailer = new MailSender(smtpServer, smtpPort, username, password)) {
-				mailer.sendMail(sender, recipient, NACHRICHT, filePaths);
+				mailer.sendMail(sender, recipient, BETREFF, NACHRICHT, filePaths);
 			}
-			LOGGER.info("Beende Mailsenden");
 		} else {
 			printUsage();
 		}

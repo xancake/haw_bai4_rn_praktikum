@@ -1,7 +1,10 @@
 package org.haw.praktikum1;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
@@ -14,6 +17,8 @@ public class MailSender implements AutoCloseable {
 	private static final Logger LOGGER = Logger.getLogger(MailSender.class.getName());
 	
 	private static final int PORT_SSL = 465;
+	
+	private static final String BOUNDARY = "98766789";
 	
 	private String _username;
 	private String _password;
@@ -55,24 +60,53 @@ public class MailSender implements AutoCloseable {
 		receive();
 	}
 	
-	public void sendMail(String sender, String recipient, String nachricht, String... filePaths) throws IOException {
+	public void sendMail(String sender, String recipient, String subject, String message, String... filePaths) throws IOException {
 		send("MAIL FROM: <" + sender + ">");
 		receive();
 		send("RCPT TO: <" + recipient + ">");
 		receive();
 		send("DATA");
 		receive();
-		send(Base64.encodeBytes(nachricht.getBytes()));
-		for(String filePath : filePaths) {
-			sendAnhang(filePath);
-		}
+		sendData(sender, recipient, subject, message, filePaths);
 		send("");
 		send(".");
 		receive();
 	}
 	
-	private void sendAnhang(String filePath) {
-		
+	private void sendData(String sender, String recipient, String subject, String message, String... filePaths) throws IOException {
+		boolean hasAnhaenge = filePaths != null && filePaths.length > 0;
+		send("From: " + sender);
+		send("To: " + recipient);
+		send("Subject: " + subject);
+		send("MIME-Version: 1.0");
+		if(hasAnhaenge) {
+			send("Content-Type: multipart/mixed; boundary=" + BOUNDARY);
+			send("");
+			send("--" + BOUNDARY);
+		}
+		send("Content-Transfer-Encoding: base64");
+		send("Content-Type: text/plain");
+		send("");
+		send(Base64.encodeBytes(message.getBytes()));
+		for(String filePath : filePaths) {
+			File file = new File(filePath);
+			send("--" + BOUNDARY);
+			send("Content-Transfer-Encoding: base64");
+			send("Content-Type: "); // TODO: how to ermittel content-type
+			send("Content-Disposition: attachment; filename=" + file.getName());
+			send("");
+			
+			try(InputStream fileIn = new FileInputStream(file)) {
+				byte[] bytes = new byte[4];
+				while(fileIn.available() > 0) {
+					fileIn.read(bytes);
+					send(Base64.encodeBytes(bytes));
+				}
+			}
+		}
+		if(hasAnhaenge) {
+			send("--" + BOUNDARY + "--");
+		}
 	}
 	
 	private void send(String string) {

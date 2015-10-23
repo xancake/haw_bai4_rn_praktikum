@@ -10,31 +10,28 @@ import java.util.logging.Logger;
 
 import javax.net.ssl.SSLSocketFactory;
 
-public class MailSender {
+public class MailSender implements AutoCloseable {
 	private static final Logger LOGGER = Logger.getLogger(MailSender.class.getName());
 	
 	private static final int PORT_SSL = 465;
 	
-	private String _smtpServer;
-	private int _smtpPort;
 	private String _username;
 	private String _password;
 	
-	public MailSender(String smtpServer, int smtpPort, String username, String password) {
-		_smtpServer = smtpServer;
-		_smtpPort = smtpPort;
+	private Socket _socket;
+	private BufferedReader _in;
+	private PrintWriter _out;
+	
+	public MailSender(String smtpServer, int smtpPort, String username, String password) throws UnknownHostException, IOException {
 		_username = username;
 		_password = password;
+		_socket = createSocket(smtpServer, smtpPort);
+		_in = new BufferedReader(new InputStreamReader(_socket.getInputStream()));
+		_out = new PrintWriter(_socket.getOutputStream(), true);
+		connect();
 	}
 	
-	public void sendMail(String sender, String recipient, String... filePaths) throws UnknownHostException, IOException {
-		Socket socket = connect(_smtpServer, _smtpPort);
-		BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-		PrintWriter out = new PrintWriter(socket.getOutputStream());
-		
-	}
-	
-	private static Socket connect(String smtpServer, int smtpPort) throws UnknownHostException, IOException {
+	private static Socket createSocket(String smtpServer, int smtpPort) throws UnknownHostException, IOException {
 		Socket socket = null;
 		if(smtpPort == PORT_SSL) {
 			socket = SSLSocketFactory.getDefault().createSocket(smtpServer, smtpPort);
@@ -44,14 +41,57 @@ public class MailSender {
 		return socket;
 	}
 	
-	private void send(PrintWriter out, String string) {
-		out.println(string);
-		LOGGER.fine("[SEND] " + string);
+	private void connect() throws IOException {
+		receive();
+		send("EHLO " + _socket.getLocalAddress().getHostName());
+		while(_in.ready()) {
+			receive();
+		}
+		send("AUTH LOGIN");
+		receive();
+		send(Base64.encodeBytes((_username).getBytes()));
+		receive();
+		send(Base64.encodeBytes((_password).getBytes()));
+		receive();
 	}
 	
-	private String receive(BufferedReader in) throws IOException {
-		String string = in.readLine();
-		LOGGER.fine("[RECEIVE] " + string);
+	public void sendMail(String sender, String recipient, String nachricht, String... filePaths) throws IOException {
+		send("MAIL FROM: <" + sender + ">");
+		receive();
+		send("RCPT TO: <" + recipient + ">");
+		receive();
+		send("DATA");
+		receive();
+		send(Base64.encodeBytes(nachricht.getBytes()));
+		for(String filePath : filePaths) {
+			sendAnhang(filePath);
+		}
+		send("");
+		send(".");
+		receive();
+	}
+	
+	private void sendAnhang(String filePath) {
+		
+	}
+	
+	private void send(String string) {
+		_out.println(string);
+		LOGGER.info("[SEND] " + string);
+	}
+	
+	private String receive() throws IOException {
+		String string = _in.readLine();
+		LOGGER.info("[RECEIVE] " + string);
 		return string;
+	}
+	
+	@Override
+	public void close() throws Exception {
+		send("QUIT");
+		receive();
+		_in.close();
+		_out.close();
+		_socket.close();
 	}
 }

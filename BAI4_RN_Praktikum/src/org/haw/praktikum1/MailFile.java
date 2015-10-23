@@ -1,8 +1,13 @@
 package org.haw.praktikum1;
 
 import java.util.Properties;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.FileHandler;
+import java.util.logging.Logger;
 
 public class MailFile {
+	private static final Logger LOGGER = Logger.getLogger(MailFile.class.getName());
+	
 	private static final String PROPERTIES_DEFAULT = "praktikum1/mail.properties";
 	
 	private static final String PROPERTY_SOURCE_ADDRESS = "mail.source.address";
@@ -11,18 +16,32 @@ public class MailFile {
 	private static final String PROPERTY_SMTP_SERVER    = "mail.smtp.server";
 	private static final String PROPERTY_SMTP_PORT      = "mail.smtp.port";
 	
+	private static final String NACHRICHT =
+			"Hallo du Quatschnase!\n" +
+			"\n" +
+			"Gründe, warum du eine Quatschnase bist:\n" +
+			"- Grüner Hut\n" +
+			"- große Füße\n" + 
+			"- Lautes Schnarchen\n" +
+			"\n" +
+			"Mit freundlichen Grüßen,\n" +
+			"\n" +
+			"Ihr Quatschnasenverein e.V.";
+
 	private static void printUsage() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("MailFile <recipient> {filepaths}\n");
 		sb.append("\n");
 		sb.append("recipient\n");
-		sb.append("\tDie Mail-Adresse des Empf�ngers\n");
+		sb.append("\tDie Mail-Adresse des Empfängers\n");
 		sb.append("filepaths\n");
-		sb.append("\tEine Liste der anzuh�ngenden Dateien\n");
+		sb.append("\tEine Liste der anzuhängenden Dateien\n");
 		System.out.println(sb.toString());
 	}
 	
 	public static void main(String[] args) throws Exception {
+		Logger.getGlobal().addHandler(new FileHandler("mail.log"));
+		
 		if(args.length > 0) {
 			String recipient = args[0];
 			String[] filePaths = new String[args.length-1];
@@ -41,8 +60,11 @@ public class MailFile {
 			
 			String sender = properties.getProperty(PROPERTY_SOURCE_ADDRESS);
 			
-			MailSender mailer = new MailSender(smtpServer, smtpPort, username, password);
-			mailer.sendMail(sender, recipient, filePaths);
+			LOGGER.info("Beginne Mailsenden");
+			try(MailSender mailer = new MailSender(smtpServer, smtpPort, username, password)) {
+				mailer.sendMail(sender, recipient, NACHRICHT, filePaths);
+			}
+			LOGGER.info("Beende Mailsenden");
 		} else {
 			printUsage();
 		}

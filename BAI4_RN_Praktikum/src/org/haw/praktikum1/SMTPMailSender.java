@@ -52,9 +52,9 @@ public class SMTPMailSender implements AutoCloseable {
 	private void connect() throws IOException {
 		receive();
 		send("EHLO " + _socket.getLocalAddress().getHostName());
-		while(_in.ready()) { // TODO: Race-Condition ausbauen / umgehen (wie?!)
+		do {
 			receive();
-		}
+		} while(_in.ready());
 		send("AUTH LOGIN");
 		receive();
 		send(Base64.encodeBytes((_username).getBytes()));

@@ -1,0 +1,75 @@
+[TCP]
+Schicht:	4 - Transport-Schicht
+Beschreibung:
+	Transmission Control Protocol (TCP) wird benutzt um eine Verbindung
+	mit einem anderen Netzwerkgerät aufzubauen, für die gewisse Zusicherungen
+	gelten. So werden alle Pakete die über die Verbindung verschickt werden
+	(im Rahmen der physikalischen Möglichkeiten) zugestellt. Auch wird die
+	Reihenfolge der Pakete erhalten.
+Quellen:
+	https://de.wikipedia.org/wiki/Transmission_Control_Protocol
+
+[TLSv1.2] (+SSL)
+Schicht:	4 - Transport-Schicht
+Beschreibung:
+	Transport Layer Security (TLS) ist eine Erweiterung von TCP um Sicherheits-
+	Aspekte. 
+	Secure Sockets Layer (SSL) war der Vorgänger von TLS.
+Quellen:
+	https://de.wikipedia.org/wiki/Transport_Layer_Security
+
+[DNS]
+Schicht:	5 - Anwendungs-Schicht
+Ports:		53 (TCP/UDP)
+Beschreibung:
+	Domain Name System (DNS) wird für die Übersetzung von Namen in IP-Adressen
+	und umgekehrt verwendet. Wenn ein Client eine Adresse (per Namen) aufruft
+	und die IP nicht kennt, wird bei seinem DNS-Server gefragt, welche IP zu
+	dem Namen gehört. Weiß der DNS-Server das nicht, kann er selbst wieder
+	einen anderen DNS-Server fragen. Das Ergebnis wird dann an den Clienten
+	zurückgegeben.
+Quellen:
+	https://de.wikipedia.org/wiki/Domain_Name_System
+
+[HTTP]
+Schicht:	5 - Anwendungs-Schicht
+Ports:		80 (TCP)
+Beschreibung:
+	HyperText Transfer Protocol (HTTP) dient dem Austausch von Daten auf der
+	Anwendungsschicht und wird Hauptsächlich für Webseiten eingesetzt.
+Quellen:
+	https://de.wikipedia.org/wiki/Hypertext_Transfer_Protocol
+
+[DHCP]
+Schicht:	5 - Anwendungs-Schicht
+Ports:		67 / 68 (UDP)
+Beschreibung:
+	Dynamic Host Configuration Protocol (DHCP) ist für die automatische Netzwerk-
+	konfiguration von Client-Geräten zuständig. Dadurch brauchen Nutzer selbst
+	u.A. keine IP für ihr Netzwerk-Interface konfigurieren.
+	Bei DHCP wird von dem Clienten der eine Adresse anfordern möchte per Broadcast
+	ein "DHCPDISCOVER" versendet, um mögliche DHCP-Server ausfindig zu machen.
+	Die Server versenden ihre Angebote per "DHCPOFFER". Davon wählt sich der
+	Client eine Konfiguration aus und sendet per Broadcast (er hat ja noch keine
+	IP) einen "DHCPREQUEST". Der Server dessen Angebot dies entspricht akzeptiert
+	das Request nun per "DHCPACK" und übermittelt nun die Netzwerkkonfiguration.
+	Nachdem die Konfiguration vom Client nicht mehr benötigt wird (idR.
+	Herunterfahren) wird per "DHCPRELEASE" die Konfiguration wieder abgegeben
+	und der Server kann die IP wieder in seinen Adresspool aufnehmen.
+Quellen:
+	https://de.wikipedia.org/wiki/Dynamic_Host_Configuration_Protocol
+	https://de.wikipedia.org/wiki/Datei:16a_DHCP.png
+
+[ARP]
+Schicht:	2 - Netzwerk-Schicht
+Beschreibung:
+	Adress Resolution Protocol (ARP) ist für die Übersetzung von MAC- (Layer 2)
+	zu IP- (Layer 3) Adressen zuständig. ARP wird benötigt, wenn ein Client die
+	Layer 2 Adresse seines Zeils nicht kennt. In dem Fall wird per Broadcast
+	gefragt, "wem die Ziel IP-Adresse gehört". Der Zielrechner antwortet dann
+	darauf und der Anfagesteller kann die MAC-Adresse in seine ARP-Tabelle
+	aufnehmen. Danach weiß der Anfragesteller, welche MAC er im Layer 2 Header
+	eintragen soll.
+	Bei IPv6 wird ARP durch das Neighbor Discovery Protocol (NDP) ersetzt werden.
+Quellen:
+	https://de.wikipedia.org/wiki/Address_Resolution_Protocol

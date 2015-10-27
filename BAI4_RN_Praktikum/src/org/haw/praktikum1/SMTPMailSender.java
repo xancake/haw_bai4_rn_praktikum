@@ -21,22 +21,17 @@ public class SMTPMailSender implements AutoCloseable {
 	
 	private static final String BOUNDARY = "98766789";
 	
-	private String _username;
-	private String _password;
-	
 	private Socket _socket;
 	private BufferedReader _in;
 	private PrintWriter _out;
 	private OutputStream _outS;
 	
 	public SMTPMailSender(String smtpServer, int smtpPort, String username, String password) throws UnknownHostException, IOException {
-		_username = username;
-		_password = password;
 		_socket = createSocket(smtpServer, smtpPort);
 		_in = new BufferedReader(new InputStreamReader(_socket.getInputStream()));
 		_out = new PrintWriter(_socket.getOutputStream(), true);
 		_outS = _socket.getOutputStream();
-		connect();
+		connect(username, password);
 	}
 	
 	private static Socket createSocket(String smtpServer, int smtpPort) throws UnknownHostException, IOException {
@@ -49,7 +44,7 @@ public class SMTPMailSender implements AutoCloseable {
 		return socket;
 	}
 	
-	private void connect() throws IOException {
+	private void connect(String username, String password) throws IOException {
 		receive();
 		send("EHLO " + _socket.getLocalAddress().getHostName());
 		do {
@@ -57,9 +52,9 @@ public class SMTPMailSender implements AutoCloseable {
 		} while(_in.ready());
 		send("AUTH LOGIN");
 		receive();
-		send(Base64.encodeBytes((_username).getBytes()));
+		send(Base64.encodeBytes((username).getBytes()));
 		receive();
-		send(Base64.encodeBytes((_password).getBytes()));
+		send(Base64.encodeBytes((password).getBytes()));
 		receive();
 	}
 	
@@ -95,10 +90,11 @@ public class SMTPMailSender implements AutoCloseable {
 			File file = new File(filePath);
 			send("--" + BOUNDARY);
 			send("Content-Transfer-Encoding: base64");
-			send("Content-Type: "); // TODO: how to ermittel content-type
+			send("Content-Type: image/png"); // TODO: how to ermittel content-type
 			send("Content-Disposition: attachment; filename=" + file.getName());
 			send("");
 			
+			// TODO: Anhänge-Encoding ist noch nicht richtig, wie muss das richtig sein? :(
 			try(InputStream fileIn = new FileInputStream(file)) {
 				byte[] bytes = new byte[32];
 				while(fileIn.available() > bytes.length) {
@@ -122,7 +118,7 @@ public class SMTPMailSender implements AutoCloseable {
 	
 	private void send(byte[] bytes) throws IOException {
 		_outS.write(bytes);
-		LOGGER.fine("[SENB] " + new String(bytes));
+		LOGGER.info("[SENB] " + new String(bytes));
 	}
 	
 	private String receive() throws IOException {

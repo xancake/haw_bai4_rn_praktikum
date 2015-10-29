@@ -19,20 +19,15 @@ public class SMTPMailSender implements AutoCloseable {
 	
 	private static final String BOUNDARY = "98766789";
 	
-	private String _username;
-	private String _password;
-	
 	private Socket _socket;
 	private BufferedReader _in;
 	private PrintWriter _out;
 	
 	public SMTPMailSender(String smtpServer, int smtpPort, String username, String password) throws UnknownHostException, IOException {
-		_username = username;
-		_password = password;
 		_socket = createSocket(smtpServer, smtpPort);
 		_in = new BufferedReader(new InputStreamReader(_socket.getInputStream()));
 		_out = new PrintWriter(_socket.getOutputStream(), true);
-		connect();
+		connect(username, password);
 	}
 	
 	private static Socket createSocket(String smtpServer, int smtpPort) throws UnknownHostException, IOException {
@@ -45,7 +40,7 @@ public class SMTPMailSender implements AutoCloseable {
 		return socket;
 	}
 	
-	private void connect() throws IOException {
+	private void connect(String username, String password) throws IOException {
 		receive();
 		send("EHLO " + _socket.getLocalAddress().getHostName());
 		do {
@@ -53,9 +48,9 @@ public class SMTPMailSender implements AutoCloseable {
 		} while(_in.ready());
 		send("AUTH LOGIN");
 		receive();
-		send(Base64.encodeBytes((_username).getBytes()));
+		send(Base64.encodeBytes((username).getBytes()));
 		receive();
-		send(Base64.encodeBytes((_password).getBytes()));
+		send(Base64.encodeBytes((password).getBytes()));
 		receive();
 	}
 	

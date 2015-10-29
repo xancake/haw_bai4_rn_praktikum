@@ -78,10 +78,10 @@ public class SMTPMailSender implements AutoCloseable {
 			send("");
 			send("--" + BOUNDARY);
 		}
-		send("Content-Transfer-Encoding: base64");
+		send("Content-Transfer-Encoding: quoted-printable");
 		send("Content-Type: text/plain");
 		send("");
-		send(Base64.encodeBytes(message.getBytes()));
+		send(message.replaceAll("([\\n\\r])\\.", "$1.."));
 		for(String filePath : filePaths) {
 			File file = new File(filePath);
 			send("--" + BOUNDARY);

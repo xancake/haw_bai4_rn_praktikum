@@ -17,9 +17,9 @@ public class MailFile {
 			"Hallo du Quatschnase!\n" +
 			"\n" +
 			"Gründe, warum du eine Quatschnase bist:\n" +
-			"- Grüner Hut\n" +
-			"- Große Füße\n" + 
-			"- Lautes Schnarchen\n" +
+			". Grüner Hut\n" +
+			". Große Füße\n" + 
+			". Lautes Schnarchen\n" +
 			"\n" +
 			"Mit freundlichen Grüßen,\n" +
 			"\n" +

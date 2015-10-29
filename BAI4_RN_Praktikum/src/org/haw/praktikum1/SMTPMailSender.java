@@ -2,14 +2,12 @@ package org.haw.praktikum1;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.nio.file.Files;
 import java.util.logging.Logger;
 
 import javax.net.ssl.SSLSocketFactory;
@@ -27,7 +25,6 @@ public class SMTPMailSender implements AutoCloseable {
 	private Socket _socket;
 	private BufferedReader _in;
 	private PrintWriter _out;
-	private OutputStream _outS;
 	
 	public SMTPMailSender(String smtpServer, int smtpPort, String username, String password) throws UnknownHostException, IOException {
 		_username = username;
@@ -35,7 +32,6 @@ public class SMTPMailSender implements AutoCloseable {
 		_socket = createSocket(smtpServer, smtpPort);
 		_in = new BufferedReader(new InputStreamReader(_socket.getInputStream()));
 		_out = new PrintWriter(_socket.getOutputStream(), true);
-		_outS = _socket.getOutputStream();
 		connect();
 	}
 	
@@ -95,20 +91,10 @@ public class SMTPMailSender implements AutoCloseable {
 			File file = new File(filePath);
 			send("--" + BOUNDARY);
 			send("Content-Transfer-Encoding: base64");
-			send("Content-Type: "); // TODO: how to ermittel content-type
+			send("Content-Type: application/txt");
 			send("Content-Disposition: attachment; filename=" + file.getName());
 			send("");
-			
-			try(InputStream fileIn = new FileInputStream(file)) {
-				byte[] bytes = new byte[32];
-				while(fileIn.available() > bytes.length) {
-					fileIn.read(bytes);
-					send(Base64.encodeBytesToBytes(bytes));
-				}
-				fileIn.read(bytes, 0, fileIn.available());
-				send(Base64.encodeBytesToBytes(bytes));
-			}
-			send("");
+			send(Base64.encodeBytes(Files.readAllBytes(file.toPath())));
 		}
 		if(hasAnhaenge) {
 			send("--" + BOUNDARY + "--");
@@ -118,11 +104,6 @@ public class SMTPMailSender implements AutoCloseable {
 	private void send(String string) {
 		_out.println(string);
 		LOGGER.info("[SEND] " + string);
-	}
-	
-	private void send(byte[] bytes) throws IOException {
-		_outS.write(bytes);
-		LOGGER.fine("[SENB] " + new String(bytes));
 	}
 	
 	private String receive() throws IOException {
@@ -137,7 +118,6 @@ public class SMTPMailSender implements AutoCloseable {
 		receive();
 		_in.close();
 		_out.close();
-		_outS.close();
 		_socket.close();
 	}
 }

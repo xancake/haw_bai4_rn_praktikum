@@ -2,9 +2,9 @@
 **/bin/
 *.class
 
+mail.properties
 chat_client.properties
 chat_server.properties
-mail.properties
 
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
@@ -26,3 +26,4 @@ org.eclipse.jdt.core.prefs
 thumbs.db
 Thumbs.db
 .DS_Store
+*.log

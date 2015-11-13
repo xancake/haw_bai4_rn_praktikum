@@ -47,6 +47,12 @@ class ChatServerWorkerThread extends Thread {
 					} else {
 						_out.println(Protokoll.auth_decline);
 					}
+				} else if(Protokoll.list_users.equals(command)) {
+					String users = "";
+					for(ChatServerWorkerThread worker : _server.getConnectedWorkers()) {
+						users += worker._username + " ";
+					}
+					_out.println(Protokoll.users + " " + users);
 				} else if(Protokoll.message.equals(command)) {
 					String message = tokenizer.nextToken();
 					while(tokenizer.hasMoreTokens()) {

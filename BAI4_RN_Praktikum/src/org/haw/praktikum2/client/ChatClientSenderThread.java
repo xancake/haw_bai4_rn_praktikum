@@ -22,7 +22,7 @@ public class ChatClientSenderThread extends Thread {
 		_ui.showStatusmeldung("ChatClient gestartet -- beenden mit '/quit'");
 		while(running) {
 			_ui.showStatusmeldung("Nachricht eingeben: ");
-			String input = _ui.getEingabe();
+			String input = _ui.getEingabe().trim();
 			
 			if(input.startsWith("/")) {
 				if("/quit".equals(input)) {

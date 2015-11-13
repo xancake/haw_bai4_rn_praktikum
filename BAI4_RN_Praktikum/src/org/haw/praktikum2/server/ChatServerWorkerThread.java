@@ -40,10 +40,14 @@ class ChatServerWorkerThread extends Thread {
 				String command = tokenizer.nextToken();
 				
 				if(Protokoll.authentification.equals(command)) {
-					String username = tokenizer.nextToken();
-					if(checkUsername(username)) {
-						_username = username;
-						_out.println(Protokoll.auth_accept);
+					if(tokenizer.hasMoreTokens()) {
+						String username = tokenizer.nextToken();
+						if(checkUsername(username)) {
+							_username = username;
+							_out.println(Protokoll.auth_accept);
+						} else {
+							_out.println(Protokoll.auth_decline);
+						}
 					} else {
 						_out.println(Protokoll.auth_decline);
 					}
@@ -54,11 +58,15 @@ class ChatServerWorkerThread extends Thread {
 					}
 					_out.println(Protokoll.users + " " + users);
 				} else if(Protokoll.message.equals(command)) {
-					String message = tokenizer.nextToken();
-					while(tokenizer.hasMoreTokens()) {
-						message += " " + tokenizer.nextToken();
+					if(tokenizer.hasMoreTokens()) {
+						String message = tokenizer.nextToken();
+						while(tokenizer.hasMoreTokens()) {
+							message += " " + tokenizer.nextToken();
+						}
+						_server.sendAll(_username, message);
+					} else {
+						// Ignore
 					}
-					_server.sendAll(_username, message);
 				} else if(Protokoll.quit.equals(command)) {
 					_serviceRequested = false;
 					_out.println(Protokoll.quit);

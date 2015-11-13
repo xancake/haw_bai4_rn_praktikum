@@ -37,7 +37,8 @@ public class ChatServer {
 		_workerThreadsSem.acquire();
 	}
 	
-	public void release() {
+	public void release(ChatServerWorkerThread worker) {
+		_workers.remove(worker);
 		_workerThreadsSem.release();
 	}
 	

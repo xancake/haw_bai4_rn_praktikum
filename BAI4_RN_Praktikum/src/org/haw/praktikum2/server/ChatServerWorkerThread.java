@@ -78,7 +78,7 @@ class ChatServerWorkerThread extends Thread {
 			LOGGER.warning("Connection aborted by client!");
 		} finally {
 			LOGGER.fine("TCP Worker Thread " + _username + " stopped!");
-			_server.release(); // Platz für neuen Thread freigeben
+			_server.release(this); // Platz für neuen Thread freigeben
 		}
 	}
 	

@@ -1,14 +1,15 @@
 package org.haw.praktikum2;
 
 public interface Protokoll {
-	String authentification = "auth";
-	String auth_accept      = "accept";
-	String auth_decline     = "decline";
+	String AUTHENTIFICATION = "auth";
+	String AUTH_ACCEPT      = "accept";
+	String AUTH_DECLINE     = "decline";
 	
-	String list_users = "list_users";
-	String users = "users";
+	String LIST_USERS = "list_users";
+	String USERS      = "users";
 	
-	String message = "msg";
+	String SEND_MESSAGE    = "smsg";
+	String RECEIVE_MESSAGE = "rmsg";
 	
-	String quit = "quit";
+	String QUIT = "quit";
 }

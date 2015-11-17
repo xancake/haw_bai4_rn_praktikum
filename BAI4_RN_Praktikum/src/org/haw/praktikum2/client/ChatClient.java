@@ -64,11 +64,11 @@ public class ChatClient {
 	}
 	
 	private boolean authenticate(String username) throws IOException {
-		_out.println(Protokoll.authentification + " " + username);
+		_out.println(Protokoll.AUTHENTIFICATION + " " + username);
 		String response = _in.readLine();
-		if(Protokoll.auth_accept.equals(response)) {
+		if(Protokoll.AUTH_ACCEPT.equals(response)) {
 			return true;
-		} else if(Protokoll.auth_decline.equals(response)) {
+		} else if(Protokoll.AUTH_DECLINE.equals(response)) {
 			return false;
 		} else {
 			// Könnte auch eine Exception aufgrund fehlerhaften Protokolls werfen

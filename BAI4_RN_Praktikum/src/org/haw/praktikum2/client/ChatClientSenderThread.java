@@ -27,12 +27,12 @@ public class ChatClientSenderThread extends Thread {
 			if(input.startsWith("/")) {
 				if("/quit".equals(input)) {
 					running = false;
-					_out.println(Protokoll.quit);
+					_out.println(Protokoll.QUIT);
 				} else if("/list-users".equals(input)) {
-					_out.println(Protokoll.list_users);
+					_out.println(Protokoll.LIST_USERS);
 				}
 			} else {
-				_out.println(Protokoll.message + " " + input);
+				_out.println(Protokoll.SEND_MESSAGE + " " + input);
 			}
 		}
 		LOGGER.fine("ClientSenderThread beendet");

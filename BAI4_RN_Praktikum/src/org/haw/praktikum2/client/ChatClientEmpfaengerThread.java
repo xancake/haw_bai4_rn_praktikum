@@ -28,20 +28,20 @@ public class ChatClientEmpfaengerThread extends Thread {
 				StringTokenizer tokenizer = new StringTokenizer(_in.readLine(), " ");
 				String command = tokenizer.nextToken();
 				
-				if(Protokoll.message.equals(command)) {
+				if(Protokoll.RECEIVE_MESSAGE.equals(command)) {
 					String username = tokenizer.nextToken();
 					String message = tokenizer.nextToken();
 					while(tokenizer.hasMoreTokens()) {
 						message += " " + tokenizer.nextToken();
 					}
 					_ui.showMessage(username, message);
-				} else if(Protokoll.users.equals(command)) {
+				} else if(Protokoll.USERS.equals(command)) {
 					List<String> users = new ArrayList<String>();
 					while(tokenizer.hasMoreTokens()) {
 						users.add(tokenizer.nextToken());
 					}
 					_ui.showUsers(users);
-				} else if(Protokoll.quit.equals(command)) {
+				} else if(Protokoll.QUIT.equals(command)) {
 					running = false;
 				}
 			}

@@ -48,7 +48,7 @@ public class ChatServer {
 	
 	public void sendAll(String username, String message) throws IOException {
 		for(ChatServerWorkerThread worker : _workers) {
-			worker.send(Protokoll.message + " " + username + " " + message);
+			worker.send(Protokoll.RECEIVE_MESSAGE + " " + username + " " + message);
 		}
 	}
 	

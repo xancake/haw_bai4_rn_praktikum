@@ -39,25 +39,25 @@ class ChatServerWorkerThread extends Thread {
 				StringTokenizer tokenizer = new StringTokenizer(_in.readLine(), " ");
 				String command = tokenizer.nextToken();
 				
-				if(Protokoll.authentification.equals(command)) {
+				if(Protokoll.AUTHENTIFICATION.equals(command)) {
 					if(tokenizer.hasMoreTokens()) {
 						String username = tokenizer.nextToken();
 						if(checkUsername(username)) {
 							_username = username;
-							_out.println(Protokoll.auth_accept);
+							_out.println(Protokoll.AUTH_ACCEPT);
 						} else {
-							_out.println(Protokoll.auth_decline);
+							_out.println(Protokoll.AUTH_DECLINE);
 						}
 					} else {
-						_out.println(Protokoll.auth_decline);
+						_out.println(Protokoll.AUTH_DECLINE);
 					}
-				} else if(Protokoll.list_users.equals(command)) {
+				} else if(Protokoll.LIST_USERS.equals(command)) {
 					String users = "";
 					for(ChatServerWorkerThread worker : _server.getConnectedWorkers()) {
 						users += worker._username + " ";
 					}
-					_out.println(Protokoll.users + " " + users);
-				} else if(Protokoll.message.equals(command)) {
+					_out.println(Protokoll.USERS + " " + users);
+				} else if(Protokoll.SEND_MESSAGE.equals(command)) {
 					if(tokenizer.hasMoreTokens()) {
 						String message = tokenizer.nextToken();
 						while(tokenizer.hasMoreTokens()) {
@@ -67,9 +67,9 @@ class ChatServerWorkerThread extends Thread {
 					} else {
 						// Ignore
 					}
-				} else if(Protokoll.quit.equals(command)) {
+				} else if(Protokoll.QUIT.equals(command)) {
 					_serviceRequested = false;
-					_out.println(Protokoll.quit);
+					_out.println(Protokoll.QUIT);
 				}
 			}
 			

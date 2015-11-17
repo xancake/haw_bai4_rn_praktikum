@@ -17,7 +17,7 @@ import org.haw.praktikum2.shared.io.LoggingBufferedReader;
 public class ChatClient {
 	private static final Logger LOGGER = Logger.getLogger(ChatClient.class.getName());
 	
-	private static final String PROPERTIES_DEFAULT = "praktikum2/chat_server.properties";
+	private static final String PROPERTIES_DEFAULT = "praktikum2/chat_client.properties";
 	private static final String PROPERTY_SERVER_ADDRESS = "chat.server.address";
 	private static final String PROPERTY_SERVER_PORT   = "chat.server.port";
 	
@@ -96,6 +96,7 @@ public class ChatClient {
 			client.run();
 		} catch(Exception e) {
 			LOGGER.severe(e.toString());
+			throw e;
 		}
 	}
 }

@@ -76,6 +76,7 @@ public class ChatServer {
 			server.run();
 		} catch(Exception e) {
 			LOGGER.severe(e.toString());
+			throw e;
 		}
 	}
 }

@@ -90,7 +90,7 @@ class ChatServerWorkerThread extends Thread {
 	}
 	
 	private boolean checkUsername(String username) {
-		Pattern pattern = Pattern.compile("[a-zA-Z0-9]*");
+		Pattern pattern = Pattern.compile("[a-zA-Z0-9]+");
 		return pattern.matcher(username).matches();
 	}
 }

@@ -71,7 +71,7 @@ class ChatServerWorkerThread extends Thread {
 					}
 				} else if(Protokoll.QUIT.equals(command)) {
 					_serviceRequested = false;
-					_out.println(Protokoll.QUIT);
+					_out.println(Protokoll.BYE);
 				} else {
 					LOGGER.warning("Cannot understand input '" + input + "'");
 				}

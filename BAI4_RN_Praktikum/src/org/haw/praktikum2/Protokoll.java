@@ -12,4 +12,5 @@ public interface Protokoll {
 	String RECEIVE_MESSAGE = "rmsg";
 	
 	String QUIT = "quit";
+	String BYE  = "bye";
 }

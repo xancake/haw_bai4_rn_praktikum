@@ -42,7 +42,7 @@ public class ChatClientEmpfaengerThread extends Thread {
 						users.add(tokenizer.nextToken());
 					}
 					_ui.showUsers(users);
-				} else if(Protokoll.QUIT.equals(command)) {
+				} else if(Protokoll.BYE.equals(command)) {
 					running = false;
 				} else {
 					LOGGER.warning("Cannot understand input '" + input + "'");

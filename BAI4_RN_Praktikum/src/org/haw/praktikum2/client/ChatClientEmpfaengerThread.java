@@ -25,7 +25,8 @@ public class ChatClientEmpfaengerThread extends Thread {
 		boolean running = true;
 		try {
 			while(running) {
-				StringTokenizer tokenizer = new StringTokenizer(_in.readLine(), " ");
+				String input = _in.readLine();
+				StringTokenizer tokenizer = new StringTokenizer(input, " ");
 				String command = tokenizer.nextToken();
 				
 				if(Protokoll.RECEIVE_MESSAGE.equals(command)) {
@@ -43,6 +44,8 @@ public class ChatClientEmpfaengerThread extends Thread {
 					_ui.showUsers(users);
 				} else if(Protokoll.QUIT.equals(command)) {
 					running = false;
+				} else {
+					LOGGER.warning("Cannot understand input '" + input + "'");
 				}
 			}
 		} catch(IOException e) {

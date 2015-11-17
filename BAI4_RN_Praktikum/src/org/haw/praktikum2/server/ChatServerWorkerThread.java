@@ -36,7 +36,8 @@ class ChatServerWorkerThread extends Thread {
 		
 		try {
 			while(_serviceRequested) {
-				StringTokenizer tokenizer = new StringTokenizer(_in.readLine(), " ");
+				String input = _in.readLine();
+				StringTokenizer tokenizer = new StringTokenizer(input, " ");
 				String command = tokenizer.nextToken();
 				
 				if(Protokoll.AUTHENTIFICATION.equals(command)) {
@@ -70,6 +71,8 @@ class ChatServerWorkerThread extends Thread {
 				} else if(Protokoll.QUIT.equals(command)) {
 					_serviceRequested = false;
 					_out.println(Protokoll.QUIT);
+				} else {
+					LOGGER.warning("Cannot understand input '" + input + "'");
 				}
 			}
 			

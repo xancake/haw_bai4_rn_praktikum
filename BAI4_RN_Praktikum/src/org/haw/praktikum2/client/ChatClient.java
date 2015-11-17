@@ -4,8 +4,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.Properties;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
+
 import org.haw.praktikum2.Protokoll;
 import org.haw.praktikum2.client.ui.ChatClientCLI;
 import org.haw.praktikum2.client.ui.ChatClientUI;
@@ -14,6 +16,10 @@ import org.haw.praktikum2.shared.io.LoggingBufferedReader;
 
 public class ChatClient {
 	private static final Logger LOGGER = Logger.getLogger(ChatClient.class.getName());
+	
+	private static final String PROPERTIES_DEFAULT = "praktikum2/chat_server.properties";
+	private static final String PROPERTY_SERVER_ADDRESS = "chat.server.address";
+	private static final String PROPERTY_SERVER_PORT   = "chat.server.port";
 	
 	private ChatClientUI _ui;
 	private Socket socket;
@@ -79,19 +85,14 @@ public class ChatClient {
 	public static void main(String[] args) throws SecurityException, IOException {
 		LogManager.getLogManager().readConfiguration(ClassLoader.getSystemResourceAsStream("praktikum2/chat_client.properties"));
 		
-		String host = "localhost";
-		int port = 56789;
-		if(args.length == 0) {
-			
-		} else if(args.length == 1) {
-			host = args[0];
-		} else {
-			System.out.println("Ungültige Parameter");
-			System.exit(1);
-		}
-		
 		try {
-			ChatClient client = new ChatClient(new ChatClientCLI(System.in, System.out), host, port);
+			Properties properties = new Properties();
+			properties.load(ClassLoader.getSystemResourceAsStream(PROPERTIES_DEFAULT));
+			
+			String address = properties.getProperty(PROPERTY_SERVER_ADDRESS);
+			int port = Integer.parseInt(properties.getProperty(PROPERTY_SERVER_PORT));
+			
+			ChatClient client = new ChatClient(new ChatClientCLI(System.in, System.out), address, port);
 			client.run();
 		} catch(Exception e) {
 			LOGGER.severe(e.toString());

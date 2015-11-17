@@ -1,6 +1,7 @@
 # Chat Client Properties
 
-
+chat.server.address = localhost
+chat.server.port = 56789
 
 
 #####################################################################################

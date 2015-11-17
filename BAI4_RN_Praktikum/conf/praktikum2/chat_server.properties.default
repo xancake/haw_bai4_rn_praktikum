@@ -1,6 +1,7 @@
 # Chat Server Properties
 
 chat.server.port = 1337
+chat.server.limit = 100
 
 
 #####################################################################################

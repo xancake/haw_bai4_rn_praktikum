@@ -45,6 +45,7 @@ class ChatServerWorkerThread extends Thread {
 						String username = tokenizer.nextToken();
 						if(checkUsername(username)) {
 							_username = username;
+							_server.addWorker(this);
 							_out.println(Protokoll.AUTH_ACCEPT);
 						} else {
 							_out.println(Protokoll.AUTH_DECLINE);

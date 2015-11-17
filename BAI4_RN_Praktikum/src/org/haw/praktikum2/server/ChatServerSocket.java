@@ -47,7 +47,6 @@ public class ChatServerSocket implements Runnable {
 				Socket socket = _serverSocket.accept();
 				
 				ChatServerWorkerThread worker = new ChatServerWorkerThread(socket, _server);
-				_server.addWorker(worker);
 				worker.start();
 			}
 			

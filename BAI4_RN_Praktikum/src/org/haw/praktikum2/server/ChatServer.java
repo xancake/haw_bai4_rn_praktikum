@@ -63,7 +63,7 @@ public class ChatServer {
 	}
 	
 	public static void main(String[] args) throws Exception {
-		LogManager.getLogManager().readConfiguration(ClassLoader.getSystemResourceAsStream("praktikum2/chat_server.properties"));
+		LogManager.getLogManager().readConfiguration(ClassLoader.getSystemResourceAsStream(PROPERTIES_DEFAULT));
 		
 		try {
 			Properties properties = new Properties();

@@ -83,7 +83,7 @@ public class ChatClient {
 	}
 	
 	public static void main(String[] args) throws SecurityException, IOException {
-		LogManager.getLogManager().readConfiguration(ClassLoader.getSystemResourceAsStream("praktikum2/chat_client.properties"));
+		LogManager.getLogManager().readConfiguration(ClassLoader.getSystemResourceAsStream(PROPERTIES_DEFAULT));
 		
 		try {
 			Properties properties = new Properties();

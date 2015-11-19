@@ -8,14 +8,15 @@ import java.util.StringTokenizer;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import org.haw.praktikum2.Protokoll;
-import org.haw.praktikum2.old.shared.connection.LoggingPrintWriter;
 import org.haw.praktikum2.shared.io.LoggingBufferedReader;
+import org.haw.praktikum2.shared.io.LoggingPrintWriter;
 
 /**
  * Arbeitsthread, der eine existierende Socket-Verbindung zur Bearbeitung erhaelt
  */
 class ChatConnectionWorker extends Thread {
 	private static final Logger LOGGER = Logger.getLogger(ChatConnectionWorker.class.getName());
+	private static final String ENCODING = "UTF-8";
 	
 	private String _username;
 	private ChatServer _server;
@@ -27,8 +28,8 @@ class ChatConnectionWorker extends Thread {
 	public ChatConnectionWorker(Socket socket, ChatServer server) throws IOException {
 		_socket = socket;
 		_server = server;
-		_in = new LoggingBufferedReader(_socket.getInputStream());
-		_out = new LoggingPrintWriter(_socket.getOutputStream());
+		_in = new LoggingBufferedReader(_socket.getInputStream(), ENCODING);
+		_out = new LoggingPrintWriter(_socket.getOutputStream(), ENCODING);
 	}
 	
 	public void run() {

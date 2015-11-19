@@ -5,16 +5,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.UnsupportedEncodingException;
 import java.util.logging.Logger;
 
 public class LoggingBufferedReader extends BufferedReader {
 	private static final Logger LOGGER = Logger.getLogger(LoggingBufferedReader.class.getName());
 	
-	public LoggingBufferedReader(InputStream in) {
-		this(new InputStreamReader(in));
+	public LoggingBufferedReader(InputStream in, String charset) throws UnsupportedEncodingException {
+		this(new InputStreamReader(in, charset));
 	}
 	
-	public LoggingBufferedReader(Reader in) {
+	private LoggingBufferedReader(Reader in) {
 		super(in);
 	}
 	

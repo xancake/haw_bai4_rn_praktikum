@@ -11,11 +11,12 @@ import java.util.logging.Logger;
 import org.haw.praktikum2.Protokoll;
 import org.haw.praktikum2.client.ui.ChatClientCLI;
 import org.haw.praktikum2.client.ui.ChatClientUI;
-import org.haw.praktikum2.old.shared.connection.LoggingPrintWriter;
 import org.haw.praktikum2.shared.io.LoggingBufferedReader;
+import org.haw.praktikum2.shared.io.LoggingPrintWriter;
 
 public class ChatClient {
 	private static final Logger LOGGER = Logger.getLogger(ChatClient.class.getName());
+	private static final String ENCODING = "UTF-8";
 	
 	private static final String PROPERTIES_DEFAULT = "praktikum2/chat_client.properties";
 	private static final String PROPERTY_SERVER_ADDRESS = "chat.server.address";
@@ -29,8 +30,8 @@ public class ChatClient {
 	public ChatClient(ChatClientUI ui, String hostname, int serverPort) throws IOException {
 		_ui = ui;
 		socket = new Socket(hostname, serverPort);
-		_in = new LoggingBufferedReader(socket.getInputStream());
-		_out = new LoggingPrintWriter(socket.getOutputStream());
+		_in = new LoggingBufferedReader(socket.getInputStream(), ENCODING);
+		_out = new LoggingPrintWriter(socket.getOutputStream(), ENCODING);
 	}
 	
 	public void run() {

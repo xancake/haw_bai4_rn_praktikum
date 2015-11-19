@@ -46,7 +46,7 @@ public class ChatServerSocket implements Runnable {
 				LOGGER.fine("TCP Server is waiting for connection - listening TCP port " + _serverSocket.getLocalPort());
 				Socket socket = _serverSocket.accept();
 				
-				ChatServerWorkerThread worker = new ChatServerWorkerThread(socket, _server);
+				ChatConnectionWorker worker = new ChatConnectionWorker(socket, _server);
 				worker.start();
 			}
 			

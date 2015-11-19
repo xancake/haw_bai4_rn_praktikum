@@ -14,8 +14,8 @@ import org.haw.praktikum2.shared.io.LoggingBufferedReader;
 /**
  * Arbeitsthread, der eine existierende Socket-Verbindung zur Bearbeitung erhaelt
  */
-class ChatServerWorkerThread extends Thread {
-	private static final Logger LOGGER = Logger.getLogger(ChatServerWorkerThread.class.getName());
+class ChatConnectionWorker extends Thread {
+	private static final Logger LOGGER = Logger.getLogger(ChatConnectionWorker.class.getName());
 	
 	private String _username;
 	private ChatServer _server;
@@ -24,7 +24,7 @@ class ChatServerWorkerThread extends Thread {
 	private PrintWriter _out;
 	boolean _serviceRequested = true;
 	
-	public ChatServerWorkerThread(Socket socket, ChatServer server) throws IOException {
+	public ChatConnectionWorker(Socket socket, ChatServer server) throws IOException {
 		_socket = socket;
 		_server = server;
 		_in = new LoggingBufferedReader(_socket.getInputStream());
@@ -55,8 +55,8 @@ class ChatServerWorkerThread extends Thread {
 					}
 				} else if(Protokoll.LIST_USERS.equals(command)) {
 					String users = "";
-					for(ChatServerWorkerThread worker : _server.getConnectedWorkers()) {
-						users += worker._username + " ";
+					for(String username : _server.getUsernames()) {
+						users += username + " ";
 					}
 					_out.println(Protokoll.USERS + " " + users);
 				} else if(Protokoll.SEND_MESSAGE.equals(command)) {
@@ -84,6 +84,10 @@ class ChatServerWorkerThread extends Thread {
 			LOGGER.fine("TCP Worker Thread " + _username + " stopped!");
 			_server.release(this); // Platz für neuen Thread freigeben
 		}
+	}
+	
+	public String getUsername() {
+		return _username;
 	}
 	
 	public void send(String message) throws IOException {

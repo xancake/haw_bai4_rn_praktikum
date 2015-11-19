@@ -21,7 +21,7 @@ public class ChatServer {
 	private ChatServerSocket _serverSocket;
 	private ServerEingabeThread _serverEingabe;
 	private Semaphore _workerThreadsSem;
-	private List<ChatServerWorkerThread> _workers;
+	private List<ChatConnectionWorker> _workers;
 	
 	public ChatServer(int serverPort, int maxThreads) throws IOException {
 		_serverSocket = new ChatServerSocket(this, serverPort);
@@ -43,22 +43,30 @@ public class ChatServer {
 		_workerThreadsSem.acquire();
 	}
 	
-	public void release(ChatServerWorkerThread worker) {
+	public synchronized void release(ChatConnectionWorker worker) {
 		_workers.remove(worker);
 		_workerThreadsSem.release();
 	}
 	
-	public void addWorker(ChatServerWorkerThread worker) {
+	public synchronized void addWorker(ChatConnectionWorker worker) {
 		_workers.add(worker);
 	}
 	
-	public void sendAll(String username, String message) throws IOException {
-		for(ChatServerWorkerThread worker : _workers) {
+	public synchronized void sendAll(String username, String message) throws IOException {
+		for(ChatConnectionWorker worker : _workers) {
 			worker.send(Protokoll.RECEIVE_MESSAGE + " " + username + " " + message);
 		}
 	}
 	
-	public List<ChatServerWorkerThread> getConnectedWorkers() {
+	public synchronized List<String> getUsernames() {
+		List<String> usernames = new ArrayList<>();
+		for(ChatConnectionWorker worker : _workers) {
+			usernames.add(worker.getUsername());
+		}
+		return usernames;
+	}
+	
+	public List<ChatConnectionWorker> getConnectedWorkers() {
 		return Collections.unmodifiableList(_workers);
 	}
 	

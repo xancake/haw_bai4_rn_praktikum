@@ -1,7 +1,7 @@
 package org.haw.praktikum3.client;
 
-import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.StringTokenizer;
 import java.util.logging.Logger;
 
@@ -12,10 +12,10 @@ public class ChatClientEmpfaengerThread extends Thread {
 	private static final Logger LOGGER = Logger.getLogger(ChatClientEmpfaengerThread.class.getName());
 	
 	private ChatClientUI _ui;
-	private BufferedReader _in;
+	private ObjectInputStream _in;
 	private String _username;
 	
-	public ChatClientEmpfaengerThread(ChatClientUI ui, BufferedReader in, String username) {
+	public ChatClientEmpfaengerThread(ChatClientUI ui, ObjectInputStream in, String username) {
 		_ui = ui;
 		_in = in;
 		_username = username;
@@ -26,11 +26,11 @@ public class ChatClientEmpfaengerThread extends Thread {
 		boolean running = true;
 		try {
 			while(running) {
-				String input = _in.readLine();
+				String input = ((String)_in.readObject()).trim();
 				StringTokenizer tokenizer = new StringTokenizer(input, " ");
 				String command = tokenizer.nextToken();
 				
-				if((Protokoll.BYE + " " + _username).equals(command)) {
+				if(Protokoll.BYE.equals(command)) {
 					running = false;
 				} else {
 					String username = tokenizer.nextToken();
@@ -42,6 +42,9 @@ public class ChatClientEmpfaengerThread extends Thread {
 				}
 			}
 		} catch(IOException e) {
+			LOGGER.severe("Fehler beim Erhalten einer Nachricht!");
+			LOGGER.severe(e.toString());
+		} catch (ClassNotFoundException e) {
 			LOGGER.severe("Fehler beim Erhalten einer Nachricht!");
 			LOGGER.severe(e.toString());
 		}

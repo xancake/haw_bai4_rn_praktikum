@@ -1,8 +1,8 @@
 package org.haw.praktikum3.client;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.Properties;
 import java.util.logging.LogManager;
@@ -11,8 +11,6 @@ import java.util.logging.Logger;
 import org.haw.praktikum3.Protokoll;
 import org.haw.praktikum3.client.ui.ChatClientCLI;
 import org.haw.praktikum3.client.ui.ChatClientUI;
-import org.haw.praktikum3.shared.io.LoggingBufferedReader;
-import org.haw.praktikum3.shared.io.LoggingPrintWriter;
 
 public class ChatClient {
 	private static final Logger LOGGER = Logger.getLogger(ChatClient.class.getName());
@@ -24,15 +22,15 @@ public class ChatClient {
 	
 	private ChatClientUI _ui;
 	private Socket socket;
-	private BufferedReader _in;
-	private PrintWriter _out;
+	private ObjectInputStream _in;
+	private ObjectOutputStream _out;
 	private String _username;
 	
 	public ChatClient(ChatClientUI ui, String hostname, int serverPort) throws IOException {
 		_ui = ui;
 		socket = new Socket(hostname, serverPort);
-		_in = new LoggingBufferedReader(socket.getInputStream(), ENCODING);
-		_out = new LoggingPrintWriter(socket.getOutputStream(), ENCODING);
+		_in = new ObjectInputStream(socket.getInputStream());
+		_out = new ObjectOutputStream(socket.getOutputStream());
 	}
 	
 	public void run() {
@@ -74,13 +72,19 @@ public class ChatClient {
 	}
 	
 	private boolean authenticate(String username) throws IOException {
-		_out.println(username);
-		String response = _in.readLine();
-		if(Protokoll.AUTH_ACCEPT.equals(response)) {
-			return true;
-		} else {
-			// Könnte auch eine Exception aufgrund fehlerhaften Protokolls werfen
-			return false;
+		try {
+			LOGGER.info("[SEND] " + username);
+			_out.writeObject(username);
+			String response = ((String)_in.readObject()).trim();
+			LOGGER.info("[RECV] " + response);
+			if(Protokoll.AUTH_ACCEPT.equals(response)) {
+				return true;
+			} else {
+				// Könnte auch eine Exception aufgrund fehlerhaften Protokolls werfen
+				return false;
+			}
+		} catch (ClassNotFoundException e) {
+			throw new IOException(e);
 		}
 	}
 	

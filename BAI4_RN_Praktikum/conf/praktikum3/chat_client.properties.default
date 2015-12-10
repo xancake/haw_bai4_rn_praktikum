@@ -1,0 +1,21 @@
+# Chat Client Properties
+
+chat.server.address = LAB29
+chat.server.port = 2000
+
+
+#####################################################################################
+# LOGGING
+
+handlers = java.util.logging.FileHandler, java.util.logging.ConsoleHandler
+
+java.util.logging.ConsoleHandler.level = ALL
+java.util.logging.ConsoleHandler.formatter = java.util.logging.SimpleFormatter
+
+java.util.logging.FileHandler.level = INFO
+java.util.logging.FileHandler.pattern = chatclient.log
+java.util.logging.FileHandler.formatter = java.util.logging.SimpleFormatter
+java.util.logging.FileHandler.append = false
+java.util.logging.FileHandler.count = 5
+
+java.util.logging.SimpleFormatter.format = %1$tH:%1$tM:%1$tS %4$s %5$s %6$s%n

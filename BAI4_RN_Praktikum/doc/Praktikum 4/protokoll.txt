@@ -1,0 +1,148 @@
+Praktikum 4
+
+[Aufgabe 2 - Netzwerkanalysetools]
+
+	networker@lab23:~> socat tcp-listen:9400 172.16.1.4
+	2016/01/14 14:29:21 socat[26493] E bind(3, {AF=2 0.0.0.0:9400}, 16): Address already in use
+	networker@lab23:~> fuser 9400/tcp
+	9400/tcp:             1986
+	networker@lab23:~> lsof -i|grep 1986
+	rn10serve 1986 networker    3u  IPv4  19189      0t0  TCP *:sec-t4net-srv (LISTEN)
+
+
+[Aufgabe 3 - Paketfilterung]
+
+a)
+Befehle
+	networker@lab23:~> sudo /usr/sbin/iptables -I INPUT  --source      172.16.1.0/24 -j DROP
+	networker@lab23:~> sudo /usr/sbin/iptables -I OUTPUT --destination 172.16.1.0/24 -j DROP
+
+Test
+	networker@lab23:~> ping 172.16.1.9
+	PING 172.16.1.9 (172.16.1.9) 56(84) bytes of data.
+	ping: sendmsg: Operation not permitted
+
+b)
+Befehle
+	-- Es wird davon ausgegangen, dass die Firewall-Regeln aus Aufgabe 3.a) immernoch vorhanden sind
+	networker@lab23:~> sudo /usr/sbin/iptables -I INPUT  --source      172.16.1.0/24 --protocol tcp --destination-port 51000 -j ACCEPT
+	networker@lab23:~> sudo /usr/sbin/iptables -I OUTPUT --destination 172.16.1.0/24 --protocol tcp --source-port      51000 -j ACCEPT
+
+Test
+	-- SSH Freigeben, damit wir per SSH telnetten können
+	sudo /usr/sbin/iptables -I INPUT  --source      172.16.1.0/24 --protocol tcp --destination-port ssh -j ACCEPT
+	
+	-- Test mit Telnet
+	networker@lab23:~> ssh -X networker@lab31
+	The authenticity of host 'lab31 (141.22.27.110)' can't be established.
+	ECDSA key fingerprint is 06:1f:46:dd:43:98:f4:8d:33:7f:01:cc:f9:81:cb:59 [MD5].
+	Are you sure you want to continue connecting (yes/no)? yes
+	Warning: Permanently added 'lab31,141.22.27.110' (ECDSA) to the list of known hosts.
+	Password:
+	Last login: Thu Jan 14 12:55:34 2016 from console
+	Have a lot of fun...
+	networker@lab31:~> telnet 172.16.1.4 51000
+	Trying 172.16.1.4...
+	Connected to 172.16.1.4.
+	Escape character is '^]'.
+	Lars
+	auth Lars
+	accept
+	...
+
+c)
+Befehle
+	networker@lab23:~> sudo /usr/sbin/iptables -I INPUT --source 172.16.1.0/24 --protocol tcp --match state --state NEW -j REJECT --reject-with tcp-reset
+	
+Test
+	Chatserver auf lab23:51000 gestartet
+	networker@lab31:~> telnet 172.16.1.4 51000
+	Trying 172.16.1.4...
+	telnet: connect to address 172.16.1.4: Connection refused
+	
+	Chatserver auf lab31:51000 gestartet
+	networker@lab23:~> telnet 172.16.1.9 51000
+	Trying 172.16.1.9...
+	Connected to 172.16.1.9.
+	Escape character is '^]'.
+	auth lars
+	accept
+	quit
+	bye
+	Connection closed by foreign host.
+
+d)
+Befehle
+	networker@lab23:~> sudo /usr/sbin/iptables -I INPUT --source 172.16.1.0/24 --protocol icmp --icmp-type echo-request -j REJECT
+
+Test
+	-- Vom selben Rechner (lab23)
+	networker@lab23:~> ping 172.16.1.4 -c 1
+	PING 172.16.1.4 (172.16.1.4) 56(84) bytes of data.
+	From 172.16.1.4 icmp_seq=1 Destination Port Unreachable
+	
+	--- 172.16.1.4 ping statistics ---
+	1 packets transmitted, 0 received, +1 errors, 100% packet loss, time 0ms
+	
+	networker@lab23:~> ping 172.16.1.9 -c 1
+	PING 172.16.1.9 (172.16.1.9) 56(84) bytes of data.
+	64 bytes from 172.16.1.9: icmp_seq=1 ttl=64 time=0.280 ms
+	
+	--- 172.16.1.9 ping statistics ---
+	1 packets transmitted, 1 received, 0% packet loss, time 0ms
+	rtt min/avg/max/mdev = 0.280/0.280/0.280/0.000 ms
+	
+	-- Nochmal vom anderen Rechner (lab31)
+	networker@lab31:~> ping 172.16.1.4 -c 1
+	PING 172.16.1.4 (172.16.1.4) 56(84) bytes of data.
+	From 172.16.1.4 icmp_seq=1 Destination Port Unreachable
+	
+	--- 172.16.1.4 ping statistics ---
+	1 packets transmitted, 0 received, +1 errors, 100% packet loss, time 0ms
+	
+
+[Aufgabe 4 - Routing]
+
+
+
+[Aufgabe 5 - Erweitertes Netzwerksniffing und Firewalling]
+a)
+	siehe images/aufgabe_5a.png
+
+b)	
+Befehle
+	networker@lab23:~> sudo /usr/sbin/iptables -I OUTPUT -p tcp --dport 80 -j REJECT --reject-with tcp-reset
+	networker@lab23:~> sudo /usr/sbin/iptables -I OUTPUT -d www.dmi.dk -p tcp --dport 80 -j ACCEPT
+	
+Test
+	siehe images/aufgabe_5b.png
+	
+c)
+	Wie man an den Listen sieht, wird der Name www.dmi.dk in die damit verbundenen IP-Adressen übersetzt,
+	bevor die Regel aufgenommen wird.
+	
+	networker@lab23:~> sudo /usr/sbin/iptables -L OUTPUT
+	Chain OUTPUT (policy ACCEPT)
+	target     prot opt source               destination
+	ACCEPT     tcp  --  anywhere             130.226.71.229       tcp dpt:http
+	ACCEPT     tcp  --  anywhere             130.226.71.226       tcp dpt:http
+	ACCEPT     tcp  --  anywhere             5.56.149.239         tcp dpt:http
+	ACCEPT     tcp  --  anywhere             5.56.149.238         tcp dpt:http
+	REJECT     tcp  --  anywhere             anywhere             tcp dpt:http reject-with tcp-reset
+	ACCEPT     all  --  anywhere             anywhere
+	ACCEPT     all  --  anywhere             cpt.haw-hamburg.de/23
+	ACCEPT     all  --  anywhere             cpt.haw-hamburg.de/23
+	ACCEPT     all  --  anywhere             anywhere             state ESTABLISHED
+	ACCEPT     all  --  anywhere             dns.is.haw-hamburg.de
+	ACCEPT     all  --  anywhere             dns2.is.haw-hamburg.de
+	ACCEPT     all  --  anywhere             dns3.is.haw-hamburg.de
+	ACCEPT     all  --  anywhere             shell-14.informatik.haw-hamburg.de
+	ACCEPT     all  --  anywhere             homefs.informatik.haw-hamburg.de
+	ACCEPT     all  --  anywhere             filesrv.informatik.haw-hamburg.de
+	ACCEPT     all  --  anywhere             ti-idm.informatik.haw-hamburg.de
+	ACCEPT     all  --  anywhere             192.168.0.0/16
+	ACCEPT     all  --  anywhere             172.16.1.0/24
+	ACCEPT     all  --  anywhere             anywhere
+	
+	Das bedeutet, dass die Regel keine Wirkung mehr zeigt, wenn sich die IP hinter dem Namen des Servers ändert.
+

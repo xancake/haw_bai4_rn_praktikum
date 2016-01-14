@@ -4,10 +4,10 @@ Praktikum 4
 
 	networker@lab23:~> socat tcp-listen:9400 172.16.1.4
 	2016/01/14 14:29:21 socat[26493] E bind(3, {AF=2 0.0.0.0:9400}, 16): Address already in use
-	networker@lab23:~> fuser 9400/tcp
-	9400/tcp:             1986
-	networker@lab23:~> lsof -i|grep 1986
-	rn10serve 1986 networker    3u  IPv4  19189      0t0  TCP *:sec-t4net-srv (LISTEN)
+	networker@lab23:~> netstat -tanp|grep 9400
+	(Not all processes could be identified, non-owned process info
+	 will not be shown, you would have to be root to see it all.)
+	tcp        0      0 0.0.0.0:9400            0.0.0.0:*               LISTEN      1986/rn10server
 
 
 [Aufgabe 3 - Paketfilterung]
@@ -52,7 +52,7 @@ Test
 
 c)
 Befehle
-	networker@lab23:~> sudo /usr/sbin/iptables -I INPUT --source 172.16.1.0/24 --protocol tcp --match state --state NEW -j REJECT --reject-with tcp-reset
+	networker@lab23:~> sudo /usr/sbin/iptables -I INPUT --destination 172.16.1.0/24 --protocol tcp --match state --state NEW -j REJECT --reject-with tcp-reset
 	
 Test
 	Chatserver auf lab23:51000 gestartet
@@ -73,7 +73,7 @@ Test
 
 d)
 Befehle
-	networker@lab23:~> sudo /usr/sbin/iptables -I INPUT --source 172.16.1.0/24 --protocol icmp --icmp-type echo-request -j REJECT
+	networker@lab23:~> sudo /usr/sbin/iptables -I INPUT --destination 172.16.1.0/24 --protocol icmp --icmp-type echo-request -j REJECT
 
 Test
 	-- Vom selben Rechner (lab23)
@@ -99,10 +99,68 @@ Test
 	
 	--- 172.16.1.4 ping statistics ---
 	1 packets transmitted, 0 received, +1 errors, 100% packet loss, time 0ms
-	
+
 
 [Aufgabe 4 - Routing]
+Befehle
+	networker@lab23:~> sudo /sbin/route add -net 192.168.18.0/24 gw 192.168.17.1
+	networker@lab23:~> sudo /sbin/route add -A inet6 fd32:6de0:1f69:18::/64 gw fd32:6de0:1f69:17::2
+	networker@lab31:~> sudo /sbin/route add -net 192.168.17.0/24 gw 192.168.18.1
+	networker@lab31:~> sudo /sbin/route add -A inet6 fd32:6de0:1f69:17::/64 gw fd32:6de0:1f69:18::2
 
+Test
+	-- Ping über ISDN-Anlage (IPv4)
+	networker@lab31:~> ping 192.168.17.13 -c 4
+	PING 192.168.17.13 (192.168.17.13) 56(84) bytes of data.
+	64 bytes from 192.168.17.13: icmp_seq=1 ttl=62 time=37.3 ms
+	64 bytes from 192.168.17.13: icmp_seq=2 ttl=62 time=37.3 ms
+	64 bytes from 192.168.17.13: icmp_seq=3 ttl=62 time=37.1 ms
+	64 bytes from 192.168.17.13: icmp_seq=4 ttl=62 time=37.2 ms
+	--- 192.168.17.13 ping statistics ---
+	4 packets transmitted, 4 received, 0% packet loss, time 3004ms
+	rtt min/avg/max/mdev = 37.167/37.273/37.352/0.154 ms
+	
+	networker@lab31:~> ping 192.168.17.13 -c 4 -s 1000
+	PING 192.168.17.13 (192.168.17.13) 1000(1028) bytes of data.
+	From 192.168.18.1 icmp_seq=1 Frag needed and DF set (mtu = 786)
+	1008 bytes from 192.168.17.13: icmp_seq=2 ttl=62 time=287 ms
+	1008 bytes from 192.168.17.13: icmp_seq=3 ttl=62 time=288 ms
+	1008 bytes from 192.168.17.13: icmp_seq=4 ttl=62 time=288 ms
+	--- 192.168.17.13 ping statistics ---
+	4 packets transmitted, 3 received, +1 errors, 25% packet loss, time 3004ms
+	rtt min/avg/max/mdev = 287.720/287.973/288.130/0.473 ms
+	
+	-- Ping des Interfaces im anderen Netz Router (IPv6)
+	networker@lab31:~> ping6 fd32:6de0:1f69:17::2
+	PING fd32:6de0:1f69:17::2(fd32:6de0:1f69:17::2) 56 data bytes
+	64 bytes from fd32:6de0:1f69:17::2: icmp_seq=1 ttl=64 time=0.298 ms
+	64 bytes from fd32:6de0:1f69:17::2: icmp_seq=2 ttl=64 time=0.181 ms
+	64 bytes from fd32:6de0:1f69:17::2: icmp_seq=3 ttl=64 time=0.179 ms
+	^C
+	--- fd32:6de0:1f69:17::2 ping statistics ---
+	3 packets transmitted, 3 received, 0% packet loss, time 1999ms
+	rtt min/avg/max/mdev = 0.179/0.219/0.298/0.056 ms
+
+	-- IPv6-Adresse des Zielrechners ermitteln
+	networker@lab23:~> /sbin/ifconfig
+	[...]
+	eth1      Link encap:Ethernet  HWaddr 00:1B:21:40:E7:9C
+	          inet addr:192.168.17.13  Bcast:192.168.17.255  Mask:255.255.255.0
+	          inet6 addr: fd32:6de0:1f69:17:21b:21ff:fe40:e79c/64 Scope:Global
+	          inet6 addr: fe80::21b:21ff:fe40:e79c/64 Scope:Link
+	          inet6 addr: fd32:6de0:1f69:17:c079:e8af:d122:b3cb/64 Scope:Global
+	[...]
+
+	-- Ping des anderen Rechners über den Router (IPv6)
+	networker@lab31:~> ping6 fd32:6de0:1f69:17:21b:21ff:fe40:e79c
+	PING fd32:6de0:1f69:17:21b:21ff:fe40:e79c(fd32:6de0:1f69:17:21b:21ff:fe40:e79c) 56 data bytes
+	64 bytes from fd32:6de0:1f69:17:21b:21ff:fe40:e79c: icmp_seq=1 ttl=63 time=0.692 ms
+	64 bytes from fd32:6de0:1f69:17:21b:21ff:fe40:e79c: icmp_seq=2 ttl=63 time=0.366 ms
+	64 bytes from fd32:6de0:1f69:17:21b:21ff:fe40:e79c: icmp_seq=3 ttl=63 time=0.352 ms
+	^C
+	--- fd32:6de0:1f69:17:21b:21ff:fe40:e79c ping statistics ---
+	3 packets transmitted, 3 received, 0% packet loss, time 2000ms
+	rtt min/avg/max/mdev = 0.352/0.470/0.692/0.157 ms
 
 
 [Aufgabe 5 - Erweitertes Netzwerksniffing und Firewalling]
